@@ -1,19 +1,23 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const express = require("express")
+const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
+const userRouter = require("./routes/userRoutes");
+
 
 const app = express();
 
 //middle ware
 app.use(cors());
 app.use(express.json());
-
-const details = [];
+// app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req,res) => {
   res.send("Hello World")
 });
+
+app.use("/users", userRouter);
 
 
 
