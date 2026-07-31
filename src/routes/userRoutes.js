@@ -10,5 +10,10 @@ userRouter.post("/register",[
   body("role").optional().isIn(["passenger", "driver"]).withMessage("Role must be passenger or driver"),body("phone").optional().trim().isLength({ min: 10, max: 15 }).withMessage("Phone number must be between 10 and 15 digits"),
 ],userController.registerUser);
 
+userRouter.post("/login",[
+  body("email").isEmail().withMessage("Please provide a valid email"),
+  body("password").notEmpty().withMessage("Password is required"),
+],userController.loginUser);
+
 
 module.exports = userRouter;  
