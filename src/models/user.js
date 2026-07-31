@@ -19,9 +19,23 @@ const userSchema = new mongoose.Schema(
       trim: true
     },
 
-    password:{
+    phone: {
       type: String,
-      required: true,
+      trim: true,
+      default: null,
+    },
+
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters long"],
+      select: false,
+    },
+
+    role: {
+      type: String,
+      enum: ["passenger", "driver", "admin"],
+      default: "passenger",
     },
 
     socketId:{
