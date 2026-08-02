@@ -32,11 +32,6 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
-    role: {
-      type: String,
-      enum: ["passenger", "driver", "admin"],
-      default: "passenger",
-    },
 
     socketId:{
       type:String,

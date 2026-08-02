@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const userRouter = require("./routes/userRoutes");
 const cookieParser = require("cookie-parser");
+const captainRouter = require("./routes/captainRoutes");
 
 const app = express();
 app.use(cookieParser());
@@ -19,6 +20,7 @@ app.get("/", (req,res) => {
 });
 
 app.use("/users", userRouter);
+app.use("/captains", captainRouter);
 
 
 

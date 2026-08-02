@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
-const {validattionResult, validationResult} = require("express-validator");
+const {validationResult} = require("express-validator");
 const Blacklist = require("../models/blacklist");
 
 module.exports.registerUser = async (req, res) => {
@@ -11,8 +11,6 @@ module.exports.registerUser = async (req, res) => {
       return res.status(400).json({errors: errors.array()})
     }
     const { name, email, password, role, phone } = req.body;
-
-    console.log("Registering user with data:", { name, email, password, role, phone });
 
     const existingUser = await User.findOne({email});
     if(existingUser){
