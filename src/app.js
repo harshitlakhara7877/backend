@@ -4,9 +4,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const userRouter = require("./routes/userRoutes");
-
+const cookieParser = require("cookie-parser");
 
 const app = express();
+app.use(cookieParser());
 
 //middle ware
 app.use(cors());
