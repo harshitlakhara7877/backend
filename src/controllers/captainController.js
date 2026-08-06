@@ -2,7 +2,7 @@ const Captain = require("../models/captain");
 const {validationResult} = require("express-validator");
 const Blacklist = require("../models/blacklist");
 
-module.exports.registerCaptain = async (req, res) => {
+module.exports.signupCaptain = async (req, res) => {
   try{
     const errors = validationResult(req);
 

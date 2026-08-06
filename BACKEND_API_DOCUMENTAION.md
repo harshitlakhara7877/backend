@@ -13,7 +13,7 @@ http://localhost:5000/api
 ## Register User
 
 ```http
-POST /users/register
+POST /users/signup
 ```
 
 Request:
@@ -79,7 +79,7 @@ Authorization: Bearer JWT_TOKEN
 ## Register Captain
 
 ```http
-POST /captains/register
+POST /captains/signup
 ```
 
 Request:

@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const {validationResult} = require("express-validator");
 const Blacklist = require("../models/blacklist");
 
-module.exports.registerUser = async (req, res) => {
+module.exports.signupUser = async (req, res) => {
   try{
     const errors = validationResult(req);
 
