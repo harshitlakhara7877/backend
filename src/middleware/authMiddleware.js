@@ -8,9 +8,15 @@ const Captain = require('../models/captain');
 
 module.exports.authUser = async (req, res, next) => {
   try{
+    console.log("AUTH USER MIDDLEWARE RUNNING");
+
+    console.log("Authorization:", req.header("Authorization"));
+console.log("Cookies:", req.cookies);
   
     const token = req.header('Authorization')?.split(" ")[1] || req.cookies?.token;
+     console.log("TOKEN:", token);
     if(!token){
+      console.log("NO TOKEN - BLOCKING REQUEST");
       return res.status(401).json({message: "authorization denied"});
     }
 
