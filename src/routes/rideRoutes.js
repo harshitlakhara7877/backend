@@ -9,11 +9,25 @@ rideRouter.post(
   "/create",
   authMiddleware.authUser,
   [
-    body("pickup").notEmpty().withMessage("Pickup location is required"),
-    body("destination").notEmpty().withMessage("Destination is required"),
+    body("pickup")
+      .notEmpty()
+      .withMessage("Pickup location is required"),
+
+    body("destination")
+      .notEmpty()
+      .withMessage("Destination is required"),
+
     body("vehicleType")
       .isIn(["bike", "auto", "car"])
       .withMessage("Invalid vehicle type"),
+
+    body("distanceKm")
+      .isFloat({ min: 0 })
+      .withMessage("Invalid distance"),
+
+    body("durationMinutes")
+      .isFloat({ min: 0 })
+      .withMessage("Invalid duration"),
   ],
   rideController.createRide
 );
@@ -52,5 +66,7 @@ rideRouter.patch(
   ],
   rideController.updateRideStatus
 );
+
+rideRouter.post("/fare" , rideController.calculateFare);
 
 module.exports = rideRouter;

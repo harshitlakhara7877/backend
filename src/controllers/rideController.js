@@ -2,7 +2,7 @@ const { validationResult } = require("express-validator");
 
 const Ride = require("../models/ride");
 const rideService = require("../services/rideService");
-const ride = require("../models/ride");
+
 
 module.exports.createRide = async (req, res, next) => {
   try {
@@ -29,9 +29,34 @@ module.exports.createRide = async (req, res, next) => {
       })
     }
 
-    const { pickup, destination, vehicleType } = req.body;
+    const {
+  pickup,
+  destination,
+  vehicleType,
+  distanceKm,
+  durationMinutes,
+} = req.body;
 
-    const fare = rideService.getFare(vehicleType);
+const distance = Number(distanceKm);
+const duration = Number(durationMinutes);
+
+if (
+  !Number.isFinite(distance) ||
+  !Number.isFinite(duration) ||
+  distance <= 0 ||
+  duration <= 0
+) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid distance or duration",
+  });
+}
+
+const fare = rideService.getFare(
+  vehicleType,
+  distance,
+  duration
+);
 
     const ride = await Ride.create({
       user: req.user._id,
@@ -251,5 +276,62 @@ module.exports.updateRideStatus = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+module.exports.calculateFare = async (req, res) => {
+  try {
+    const {
+      distanceKm,
+      durationMinutes,
+    } = req.body;
+
+    if (
+      distanceKm === undefined ||
+      durationMinutes === undefined
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "distanceKm and durationMinutes are required",
+      });
+    }
+
+    const distance = Number(distanceKm);
+    const duration = Number(durationMinutes);
+
+    if (
+      !Number.isFinite(distance) ||
+      !Number.isFinite(duration) ||
+      distance <= 0 ||
+      duration <= 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid distance or duration",
+      });
+    }
+
+    const fares = rideService.getAllFares(
+      distance,
+      duration
+    );
+
+    return res.status(200).json({
+      success: true,
+      fares,
+    });
+
+  } catch (error) {
+    console.error(
+      "FARE CALCULATION ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to calculate fare",
+    });
   }
 };
