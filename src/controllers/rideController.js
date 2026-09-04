@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const crypto = require("crypto");
 
 const Ride = require("../models/ride");
 const rideService = require("../services/rideService");
@@ -58,45 +59,22 @@ const fare = rideService.getFare(
   duration
 );
 
+const otp = crypto.randomInt(1000, 10000).toString();
+
+console.log("otp:" , otp)
+
     const ride = await Ride.create({
       user: req.user._id,
       pickup,
       destination,
       vehicleType,
       fare,
+      otp,
     });
 
     return res.status(201).json({
       success: true,
       message: "Ride requested successfully",
-      ride,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports.getCurrentRide = async (req, res, next) => {
-  try {
-    const ride = await Ride.findOne({
-      user: req.user._id,
-      status: {
-        $in: ["pending", "accepted", "arrived", "ongoing"],
-      },
-    })
-      .populate("captain", "name phone vehicle")
-      .sort({ createdAt: -1 });
-
-    if (!ride) {
-      return res.status(200).json({
-        success: true,
-        message: "No active ride found",
-        ride: null,
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
       ride,
     });
   } catch (error) {
@@ -141,6 +119,7 @@ module.exports.getAvailableRides = async (req, res, next) => {
       captain: null,
       vehicleType: req.captain.vehicle.vehicleType,
     })
+      .select("-otp")
       .populate("user", "name")
       .sort({ createdAt: -1 });
 
@@ -189,6 +168,7 @@ module.exports.acceptRide = async (req, res, next) => {
         new: true,
       }
     )
+      .select("-otp")    
       .populate("user", "name phone")
       .populate("captain", "name phone vehicle");
 
@@ -208,7 +188,7 @@ module.exports.acceptRide = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-}
+};
 
 module.exports.updateRideStatus = async (req, res, next) => {
   try {
@@ -258,6 +238,12 @@ module.exports.updateRideStatus = async (req, res, next) => {
     }
 
     if (status === "ongoing") {
+      if (!ride.otpVerified) {
+    return res.status(403).json({
+      success: false,
+      message: "OTP verification required before starting ride",
+    });
+  }
       ride.startedAt = new Date();
     }
 
@@ -279,7 +265,7 @@ module.exports.updateRideStatus = async (req, res, next) => {
   }
 };
 
-module.exports.calculateFare = async (req, res) => {
+module.exports.calculateFare = async (req, res, next) => {
   try {
     const {
       distanceKm,
@@ -335,3 +321,59 @@ module.exports.calculateFare = async (req, res) => {
     });
   }
 };
+
+module.exports.verifyRideOtp = async (req, res, next) => {
+  try{
+    const {rideId} = req.params;
+    const {otp} = req.body;
+    
+    if(!otp){
+      return res.status(400).json({
+        success: false,
+        message: "OTP is required",
+      })
+    }
+
+    const ride = await Ride.findOne({
+      _id: rideId,
+      captain: req.captain._id,
+      status: "arrived",
+    });
+
+    if(!ride){
+      return res.status(400).json({
+        success: false,
+        message: "Ride not found or ride is not ready",
+      })
+    }
+
+    console.log(ride);
+
+    if(ride.otp !== String(otp)){
+      return res.status(400).json({
+        success: false,
+        message: "Invalid otp",
+      })
+    }
+
+    ride.otpVerified = true;
+    ride.status = "ongoing";
+    ride.startedAt = new Date();
+
+    await ride.save();
+
+    await ride.populate("user", "name phone")
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+      ride
+    })
+
+  } catch(error){
+    next(error);
+  }
+}
+
+
+

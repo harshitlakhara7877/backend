@@ -69,4 +69,9 @@ rideRouter.patch(
 
 rideRouter.post("/fare" , rideController.calculateFare);
 
+
+rideRouter.post("/:rideId/verify-otp" , authMiddleware.authCaptain,  rideController.verifyRideOtp);
+
+
+
 module.exports = rideRouter;

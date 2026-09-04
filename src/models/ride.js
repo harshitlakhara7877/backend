@@ -50,6 +50,31 @@ const rideSchema = new mongoose.Schema(
       ],
       default: "pending",
     },
+
+    arrivedAt: {
+      type: Date,
+      default: null,
+    },
+
+    startedAt: {
+      type: Date,
+      default: null,
+    },
+
+    completedAt: {
+      type: Date,
+      default: null,
+    },
+
+    otp: {
+      type: String,
+      default: null,
+    },
+
+    otpVerified: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     timestamps: true,
